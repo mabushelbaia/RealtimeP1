@@ -8,4 +8,4 @@ parent.o: parent.c
 child.o: child.c
 	$(CC) -o child.o child.c -lm
 clean:
-	rm -f *.os
+	rm -f *.o
