@@ -1,24 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-
+#include "child.h"
 int main(int argc, char *argv[]) {
-    // Read range.txt and generate a random number in that range
-    FILE *fp;
-    int min, max, random;
-    fp = fopen("range.txt", "r");
-    fscanf(fp, "%d %d", &min, &max);
-    fclose(fp);
-    random = (rand() % (max - min + 1)) + min;
-
-    // Write the random number to a file named after the process id
-    char filename[20];
-    sprintf(filename, "%d.txt", getpid());
-    fp = fopen(filename, "w");
-    fprintf(fp, "%d", random);
-    fclose(fp);
-
-    printf("I am a child process with PID = %d\n", getpid());
+    kill(getppid(), SIGUSR1);
+    sigset(SIGUSR1, start);
+    pause();
+    printf("Just a check to see if the signal handler works\n");
     return 0;
+}
+
+
+void start(int sig) {
+    printf("Received starting signal [%d]\n", sig);
 }
