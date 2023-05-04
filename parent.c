@@ -22,5 +22,15 @@ int main(int argc, char *argv[]) {
 	for (int j = 0; j < 5; j++) {
 		printf("[child] %d\n", children[j]);
 	}
+
+	//write two comma-separated integer values  in a file called range.txt
+	FILE *fp = fopen("range.txt", "w");
+	if (fp == NULL) {
+		perror("fopen");
+		exit(1);
+	}
+	fprintf(fp, "%d,%d", children[0], children[4]);
+	fclose(fp);
+
 	return 0;
 }
