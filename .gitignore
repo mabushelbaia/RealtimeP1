@@ -2,9 +2,9 @@
 *.d
 .vscode
 # Text files
-*.txt 
+# *.txt 
 # Object files
-*.o
+# *.o
 *.ko
 *.obj
 *.elf
