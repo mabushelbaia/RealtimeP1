@@ -15,4 +15,21 @@ int main(int argc, char *argv[]) {
 
 void start(int sig) {
     printf("Received starting signal [%d]\n", sig);
+    int min, max;
+    FILE *fp = fopen("range.txt", "r");
+    if (fp == NULL) {
+        perror("fopen");
+        exit(1);
+    }
+    fscanf(fp, "%d,%d", &min, &max);
+    fclose(fp);
+    srand(time(NULL) + getpid());
+    int random_number = (rand() % (max - min + 1)) + min;
+    char filename[20];
+    sprintf(filename, "file_%d.txt", getpid());
+    fp = fopen(filename, "w");
+    fprintf(fp, "%d", random_number);
+    fclose(fp);
+
+    printf("Child %d: %d\n", getpid(), random_number);
 }
