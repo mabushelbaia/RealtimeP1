@@ -51,17 +51,18 @@ void write_range(char *filename, int min, int max)
 	fclose(fp);
 }
 
-void ready_to_start(int sig)
-{
+void ready_to_start(int signo, siginfo_t *info, void *context) {
+	printf("[Parent]\n");
+    printf("Received signal %d\n", signo);
+    printf("Sender PID: %d\n", info->si_pid);
 	ready_counter += 1;
 }
 
-
-void handler_setup(int sig, void (*handler)(int)) {
+void handler_setup(int sig, void (*handler)(int, siginfo_t *, void *)) {
 	struct sigaction sa;
-	sa.sa_handler = handler;
+	sa.sa_handler = (void (*)(int)) handler;
 	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
+	sa.sa_flags = SA_SIGINFO;
 	if (sigaction(sig, &sa, NULL) == -1) {
 		perror("sigaction");
 		exit(1);

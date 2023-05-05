@@ -1,5 +1,4 @@
 #include "child.h"
-#include "local.h"
 
 int main(int argc, char *argv[]) {
     handler_setup(SIGUSR1, &start);
@@ -8,8 +7,8 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void start(int sig) {
-    printf("Received starting signal [%d]\n", sig);
+void start(int sig, siginfo_t *info, void *context) {
+    printf("[%d] Received starting signal\n", getpid());
     int min, max;
     read_range("range.txt", &min, &max);
     float number = generate_random_float_number(min, max);
@@ -46,9 +45,9 @@ float generate_random_float_number(int min, int max)
     return (float)rand() / (float)(RAND_MAX / max);
 }
 
-void handler_setup(int sig, void (*handler)(int)) {
+void handler_setup(int sig, void (*handler)(int, siginfo_t *, void *)) {
 	struct sigaction sa;
-	sa.sa_handler = handler;
+	sa.sa_handler = (void (*)(int)) handler;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART;
 	if (sigaction(sig, &sa, NULL) == -1) {
