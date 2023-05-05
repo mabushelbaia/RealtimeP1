@@ -10,5 +10,6 @@
 #define False 0
 // Constants
 #define NUM_CHILDREN 5
+#define NUM_ROUNDS 5
 
 void handler_setup(int sig, void (*handler)(int));

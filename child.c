@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[]) {
     handler_setup(SIGUSR1, &start);
-    printf("I sent a signal %d to my parent and got %d as a response\n", SIGUSR1,kill(getppid(), SIGUSR1));
+    kill(getppid(), SIGUSR1); // Send SIGUSR1 to parent (Ready signal)
     pause();
     return 0;
 }
