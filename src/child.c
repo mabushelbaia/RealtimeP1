@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 void start(int sig, siginfo_t *info, void *context) {
     printf("[%d] Received starting signal\n", getpid());
     int min, max;
-    read_range("range.txt", &min, &max);
+    read_range("./txt/range.txt", &min, &max);
     float number = generate_random_float_number(min, max);
     write_random_float_number(getpid(), number);
 }
@@ -45,7 +45,7 @@ void handler_setup(int sig, void (*handler)(int, siginfo_t *, void *)) {
 
 void write_random_float_number(int pid, float number) {
     char filename[20];
-    sprintf(filename, "%d.txt", pid);
+    sprintf(filename, "./txt/%d.txt", pid);
     FILE *fp = fopen(filename, "w");
     if (fp == NULL)
     {

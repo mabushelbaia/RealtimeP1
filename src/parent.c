@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]) {
 	handler_setup(SIGUSR1, &ready_to_start);
 	pid_t *children = create_children(NUM_CHILDREN);
-	write_range("range.txt", 1, 100);
+	write_range("./txt/range.txt", 1, 100);
 	while(ready_counter < 5) pause(); // Wait until all children are ready (Note: without this line, the parent will send the signal before the children finish setting up their signal handlers)
 	for (int j=0; j < NUM_CHILDREN; ++j) kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
 	while(wait(NULL) > 0); // Wait for all children to finish
@@ -18,7 +18,7 @@ pid_t *create_children()
 		pid_t pid = fork();
 		if (pid == 0)
 		{
-			if (execlp("./child.o", "child", NULL) == -1)
+			if (execlp("./bin/child.o", "child", NULL) == -1)
 			{
 				perror("exec");
 				exit(1);

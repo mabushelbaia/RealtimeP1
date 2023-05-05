@@ -1,11 +1,11 @@
 CC = gcc
 
-potato: clean parent.o child.o # Remove clean if you want to keep the object files
-	./parent.o
-parent.o: parent.c 
-	$(CC) -o parent.o parent.c -lm -g
-child.o: child.c
-	$(CC) -o child.o child.c -lm -g
+potato: clean ./bin/parent.o ./bin/child.o # Remove clean if you want to keep the object files
+	./bin/parent.o
+./bin/parent.o: ./src/parent.c 
+	$(CC) -o ./bin/parent.o ./src/parent.c -lm -g
+./bin/child.o: ./src/child.c
+	$(CC) -o ./bin/child.o ./src/child.c -lm -g
 clean:
-	rm -f *.o
-	rm -f *.txt
+	rm -f ./bin/*.o
+	rm -f ./txt/*.txt
