@@ -1,16 +1,8 @@
 #include "parent.h"
 
 int main(int argc, char *argv[]) {
-	struct sigaction sa;
-	sa.sa_handler = &ready_to_start;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	if (sigaction(SIGUSR1, &sa, NULL) == -1) {
-		perror("sigaction");
-		exit(1);
-	}
+	handler_setup(SIGUSR1, &ready_to_start);
 	pid_t *children = create_children(NUM_CHILDREN);
-
 	write_range("range.txt", 1, 100);
 	for (int i=0; i < NUM_CHILDREN; ++i) printf("[child] %d\n", children[i]);
 	// #PROBLEM: Implement a queue to store the signals received from the children
@@ -54,4 +46,16 @@ void write_range(char * filename,int min, int max) {
 void ready_to_start(int sig) {
 	ready_counter += 1;
 	printf("Received ready signal [%d], count=%d\n", sig, ready_counter);
+}
+
+
+void handler_setup(int sig, void (*handler)(int)) {
+	struct sigaction sa;
+	sa.sa_handler = handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(sig, &sa, NULL) == -1) {
+		perror("sigaction");
+		exit(1);
+	}
 }
