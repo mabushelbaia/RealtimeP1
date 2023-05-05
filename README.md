@@ -33,7 +33,7 @@ make
 - [ ] mkdir before (writing/reading) text files
 - [ ] create a pipe between child 5 and the parent
 - [ ] distinguish the 5th child from the rest (Seperate compilation using ifdef?) or maybe just with signals
-- [ ] figure a way to not lose signals as specfied here (https://stackoverflow.com/a/18442435/8962746)[Stack Overflow]
+- [ ] figure a way to not lose signals as specfied here [Stack Overflow](https://stackoverflow.com/a/18442435/8962746)
 - [ ] GUI
 - [ ] CMake?
 - [ ] dockerize if time permits 
