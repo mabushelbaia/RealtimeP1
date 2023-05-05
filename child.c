@@ -19,22 +19,38 @@ void start(int sig)
 {
     printf("Received starting signal [%d]\n", sig);
     int min, max;
-    FILE *fp = fopen("range.txt", "r");
+    read_range("range.txt", &min, &max);
+    float number = generate_random_float_number(min, max);
+    write_random_float_number(number);
+}
+void read_range(char *filename, int *min, int *max)
+{
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL)
     {
         perror("fopen");
         exit(1);
     }
-    fscanf(fp, "%d,%d", &min, &max);
+    fscanf(fp, "%d,%d", min, max);
     fclose(fp);
-    srand(time(NULL) + getpid());
-    //generate a random float number between min and max
-    float random_number = (float)rand()/(float)(RAND_MAX/max);
-    char filename[20];
-    sprintf(filename, "%d.txt", getpid());
-    fp = fopen(filename, "w");
-    fprintf(fp, "%f", random_number);
-    fclose(fp);
+}
 
-    printf("Child %d: %f\n", getpid(), random_number);
+float generate_random_float_number(int min, int max)
+{
+    srand(time(NULL) + getpid());
+    return (float)rand() / (float)(RAND_MAX / max);
+}
+
+void write_random_float_number(float number)
+{
+    char filename[20];
+    sprintf(filename, "child_%d.txt", getpid());
+    FILE *fp = fopen(filename, "w");
+    if (fp == NULL)
+    {
+        perror("fopen");
+        exit(1);
+    }
+    fprintf(fp, "%f", number);
+    fclose(fp);
 }
