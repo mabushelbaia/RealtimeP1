@@ -14,12 +14,10 @@ int main(int argc, char *argv[])
 	pid_t *children = create_children(NUM_CHILDREN);
 
 	write_range("range.txt", 1, 100);
-	for (int i = 0; i < NUM_CHILDREN; ++i)
-		printf("[child] %d\n", children[i]);
+	for (int i = 0; i < NUM_CHILDREN; ++i) printf("[child] %d\n", children[i]);
 	// #PROBLEM: Implement a queue to store the signals received from the children
 	// while(ready_counter < 5) pause(); // Wait until all children are ready (Note: without this line, the parent will send the signal before the children finish setting up their signal handlers)
-	for (int j = 0; j < 4; ++j)
-		kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
+	for (int j = 0; j < 4; ++j) kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
 	while (wait(NULL) > 0)
 		; // Wait for all children to finish
 	return 0;
