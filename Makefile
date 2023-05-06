@@ -7,5 +7,6 @@ potato: clean ./bin/parent.o ./bin/child.o # Remove clean if you want to keep th
 ./bin/child.o: ./src/child.c
 	$(CC) -o ./bin/child.o ./src/child.c -lm -g
 clean:
+	mkdir -p ./txt ./bin
 	rm -f ./bin/*.o
 	rm -f ./txt/*.txt
