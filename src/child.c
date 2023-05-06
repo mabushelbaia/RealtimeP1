@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
     handler_setup(SIGUSR1, &start);
     kill(getppid(), SIGUSR1); // Send SIGUSR1 to parent (Ready signal)
-    handler_setup(SIGUSR2, &co_processor);
+    // handler_setup(SIGUSR2, &co_processor);
     
     pause();
     return 0;
@@ -61,11 +61,11 @@ void write_random_float_number(int pid, float number) {
 
 void co_processor(int sig)
 {
-    printf("Received co-processor signal [%d]\n", sig);
-    int pid = getpid();
-    //read message from the pipe and print it
-    close(PIPE[1]);
-    char message[20];
-    read(PIPE[0], message, 20);
-    printf("Message from parent: %s\n", message);
+    // printf("Received co-processor signal [%d]\n", sig);
+    // int pid = getpid();
+    // //read message from the pipe and print it
+    // close(PIPE[1]);
+    // char message[20];
+    // read(PIPE[0], message, 20);
+    // printf("Message from parent: %s\n", message);
 }
