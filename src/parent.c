@@ -55,6 +55,7 @@ void ready_to_start(int signo, siginfo_t *info, void *context) {
 	printf("[Parent]\n");
     printf("Received signal %d\n", signo);
     printf("Sender PID: %d\n", info->si_pid);
+	kill(info->si_pid, SIGUSR2); // Send SIGUSR1 to child (Ready signal
 	ready_counter += 1;
 }
 

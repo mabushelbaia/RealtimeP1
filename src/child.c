@@ -1,12 +1,22 @@
 #include "child.h"
 
+volatile sig_atomic_t finished_flag = False;
 int main(int argc, char *argv[]) {
     handler_setup(SIGUSR1, &start);
+    handler_setup(SIGUSR2, &finished);
+    while (!finished_flag) {
+        kill(getppid(), SIGUSR1); // Send SIGUSR2 to parent (Ready signal)
+    }
+    finished_flag = False;
     kill(getppid(), SIGUSR1); // Send SIGUSR1 to parent (Ready signal)
     pause();
     return 0;
 }
-
+void finished(int sig, siginfo_t *info, void *context) {
+    finished_flag = True;
+    printf("[%d] Received finishing signal\n", getpid());
+    exit(0);
+}
 void start(int sig, siginfo_t *info, void *context) {
     printf("[%d] Received starting signal\n", getpid());
     int min, max;
