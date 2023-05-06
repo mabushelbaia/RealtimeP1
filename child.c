@@ -1,14 +1,18 @@
 #include "child.h"
 #include "local.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     handler_setup(SIGUSR1, &start);
     kill(getppid(), SIGUSR1); // Send SIGUSR1 to parent (Ready signal)
+    handler_setup(SIGUSR2, &co_processor);
+    
     pause();
     return 0;
 }
 
-void start(int sig) {
+void start(int sig)
+{
     printf("Received starting signal [%d]\n", sig);
     int min, max;
     read_range("range.txt", &min, &max);
@@ -46,15 +50,17 @@ float generate_random_float_number(int min, int max)
     return (float)rand() / (float)(RAND_MAX / max);
 }
 
-void handler_setup(int sig, void (*handler)(int)) {
-	struct sigaction sa;
-	sa.sa_handler = handler;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	if (sigaction(sig, &sa, NULL) == -1) {
-		perror("sigaction");
-		exit(1);
-	}
+void handler_setup(int sig, void (*handler)(int))
+{
+    struct sigaction sa;
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    if (sigaction(sig, &sa, NULL) == -1)
+    {
+        perror("sigaction");
+        exit(1);
+    }
 }
 
 void write_random_float_number(int pid, float number)
@@ -69,4 +75,15 @@ void write_random_float_number(int pid, float number)
     }
     fprintf(fp, "%f", number);
     fclose(fp);
+}
+
+void co_processor(int sig)
+{
+    printf("Received co-processor signal [%d]\n", sig);
+    int pid = getpid();
+    //read message from the pipe and print it
+    close(PIPE[1]);
+    char message[20];
+    read(PIPE[0], message, 20);
+    printf("Message from parent: %s\n", message);
 }

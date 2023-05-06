@@ -7,3 +7,4 @@ volatile sig_atomic_t ready_counter = 0;
 pid_t *create_children();
 void write_range(char *filename, int min, int max);
 void ready_to_start(int);
+void send_message_to_the_fifth_child_using_pipe(pid_t *children);

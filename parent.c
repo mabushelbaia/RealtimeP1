@@ -1,12 +1,17 @@
 #include "parent.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	handler_setup(SIGUSR1, &ready_to_start);
 	pid_t *children = create_children(NUM_CHILDREN);
 	write_range("range.txt", 1, 100);
-	while(ready_counter < 5) pause(); // Wait until all children are ready (Note: without this line, the parent will send the signal before the children finish setting up their signal handlers)
-	for (int j=0; j < NUM_CHILDREN; ++j) kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
-	while(wait(NULL) > 0); // Wait for all children to finish
+	while (ready_counter < 5)
+		pause(); // Wait until all children are ready (Note: without this line, the parent will send the signal before the children finish setting up their signal handlers)
+	for (int j = 0; j < NUM_CHILDREN - 1; ++j)
+		kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
+	send_message_to_the_fifth_child_using_pipe(children);
+	while (wait(NULL) > 0)
+		; // Wait for all children to finish
 	return 0;
 }
 
@@ -56,14 +61,25 @@ void ready_to_start(int sig)
 	ready_counter += 1;
 }
 
-
-void handler_setup(int sig, void (*handler)(int)) {
+void handler_setup(int sig, void (*handler)(int))
+{
 	struct sigaction sa;
 	sa.sa_handler = handler;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART;
-	if (sigaction(sig, &sa, NULL) == -1) {
+	if (sigaction(sig, &sa, NULL) == -1)
+	{
 		perror("sigaction");
 		exit(1);
 	}
+}
+
+void send_message_to_the_fifth_child_using_pipe(pid_t *children)
+{
+	// write a message to the fifth child using a pipe (PIPE)
+	close(PIPE[0]);
+	char *message = "Hello, child!";
+	size_t message_length = strlen(message) + 1;
+	write(PIPE[1], message, message_length);
+	kill(children[NUM_CHILDREN - 1], SIGUSR2);
 }
