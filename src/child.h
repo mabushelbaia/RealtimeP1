@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <string.h>
 
 // Booleans
 #define True 1
