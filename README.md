@@ -4,7 +4,9 @@
 
 ```bash
 make 
-```
+``` 
+## Debug mode `only for parent`
+make debug
 
 ## Directory Structure
 ```bash
