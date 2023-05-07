@@ -6,7 +6,7 @@ float numbers[NUM_CHILDREN - 1] = {0.0};
 int main(int argc, char *argv[]) {
 	handler_setup(SIGUSR1, &child_confirmations);
 	create_children(NUM_CHILDREN);
-	sleep(1); // Wait for children to finish setting up their signal handlers
+	usleep(500); // Wait for children to finish setting up their signal handlers
 	write_range("./txt/range.txt", 1, 100);
 	for (int j=0; j < NUM_CHILDREN - 1; ++j) kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
 	kill(children[NUM_CHILDREN - 1], SIGPIPE); // Send SIGUSR2 (PIPE Child)
