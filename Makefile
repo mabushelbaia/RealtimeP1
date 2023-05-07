@@ -10,5 +10,6 @@ debug: clean ./bin/parent.o ./bin/child.o
 	$(CC) -o ./bin/child.o ./src/child.c ./src/local.c $(CFLAGS)
 
 clean:
+	mkdir -p ./bin ./txt
 	rm -f ./bin/*.o
 	rm -f ./txt/*.txt
