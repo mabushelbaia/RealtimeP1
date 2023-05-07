@@ -50,7 +50,7 @@ void child_confirmations(int signo, siginfo_t *info, void *context) {
 		ready_counter += 1;
 		kill(info->si_pid, SIGUSR2); // Send SIGUSR2 to child (Confirm signal)
 		confirmed[index] = true;
-	}char *
+	}
 }
 
 void get_numbers() {
