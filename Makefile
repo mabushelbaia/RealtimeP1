@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -lm -g
+CFLAGS = -lm -g -pg
 potato: clean ./bin/parent.o ./bin/child.o # Remove clean if you want to keep the object files
 	./bin/parent.o
 debug: clean ./bin/parent.o ./bin/child.o
