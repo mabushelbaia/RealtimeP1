@@ -2,11 +2,16 @@
 
 volatile sig_atomic_t confirmed_f = false;
 int main(int argc, char *argv[]) {
-    printf("[%d] Child process started\n", getpid());
-    handler_setup(SIGUSR1, &start);
-    handler_setup(SIGUSR2, &confirmed);
-    pause();
-    return 0;
+	if (strcmp(argv[1], "4") == 0) {
+    	printf("[%d] Coprocessor child process started\n", getpid());
+	}
+	else {
+    	printf("[%d] Child process started\n", getpid());
+    	handler_setup(SIGUSR1, &start);
+    	handler_setup(SIGUSR2, &confirmed);
+    	pause();
+    	return 0;
+	}
 }
 void confirmed(int sig, siginfo_t *info, void *context) {
     confirmed_f = true;
@@ -23,4 +28,3 @@ void start(int sig, siginfo_t *info, void *context) {
     }
     confirmed_f = false;
 }
-

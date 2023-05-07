@@ -4,8 +4,11 @@ pid_t children[NUM_CHILDREN];
 bool confirmed[NUM_CHILDREN - 1] = {false};
 float numbers[NUM_CHILDREN - 1] = {0.0};
 int main(int argc, char *argv[]) {
+	int fd1[2], fd2[2];
+	create_pipe(fd1);
+	create_pipe(fd2);
 	handler_setup(SIGUSR1, &child_confirmations);
-	create_children(NUM_CHILDREN);
+	create_children(fd1, fd2);
 	sleep(1); // Wait for children to finish setting up their signal handlers
 	write_range("./txt/range.txt", 1, 100);
 	for (int j=0; j < NUM_CHILDREN - 1; ++j) kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
@@ -16,14 +19,23 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void create_children()
+void create_children(int fd1[], int fd2[])
 {
 	for (int i = 0; i < NUM_CHILDREN; i++)
 	{
 		pid_t pid = fork();
 		if (pid == 0)
 		{
-			if (execlp("./bin/child.o", "child", NULL) == -1)
+			// Redirect read end of pipe to stdin
+        	if (dup2(fd1[0], STDIN_FILENO) == -1 || dup2(fd2[1], STDOUT_FILENO) == -1) {
+        	    perror("dup2");
+        	    exit(EXIT_FAILURE);
+        	}
+			close(fd1[1]);
+			close(fd2[0]);
+			char arg[10];
+			sprintf(arg, "%d", i);
+			if (execlp("./bin/child.o", arg, NULL) == -1)
 			{
 				perror("exec");
 				exit(1);
@@ -32,6 +44,8 @@ void create_children()
 		else if (pid > 0)
 		{
 			children[i] = pid;
+			close(fd1[0]);
+			close(fd2[1]);
 		}
 		else
 		{
@@ -60,4 +74,14 @@ void get_numbers() {
 		numbers[i] = read_number(filename);
 		printf("Child %d: %f\n", children[i], numbers[i]);
 	}
+}
+
+//create a pipe using an integer array f_des[]
+int create_pipe(int f_des[2]) {
+	int ret = pipe(f_des);
+    if (ret == -1) {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
+    return ret;
 }

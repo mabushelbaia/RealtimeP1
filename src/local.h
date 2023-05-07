@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <stdbool.h>
+#include <string.h>
 
 
 void handler_setup(int sig, void (*handler)(int, siginfo_t *, void *));
