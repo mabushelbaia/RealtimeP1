@@ -4,6 +4,10 @@
 
 ```bash
 make 
+``` 
+### Debug mode `only for parent`
+```bash
+make debug
 ```
 
 ## Directory Structure
@@ -15,25 +19,28 @@ make
 ├── src
 │  ├── child.c
 │  ├── child.h
+│  ├── local.c
+│  ├── local.h
 │  ├── parent.c
 │  └── parent.h
 ├── txt
-│  ├── 51841.txt
-│  ├── 51842.txt
-│  ├── 51843.txt
-│  ├── 51844.txt
-│  ├── 51845.txt
+│  ├── 46160.txt
+│  ├── 46161.txt
+│  ├── 46162.txt
+│  ├── 46163.txt
 │  └── range.txt
 ├── Makefile
 ├── Project.pdf
 └── README.md
+
 ```
 
 ## Tasks
-- [ ] mkdir before (writing/reading) text files
+- [x] mkdir before (writing/reading) text files
 - [ ] create a pipe between child 5 and the parent
-- [ ] distinguish the 5th child from the rest (Seperate compilation using ifdef?) or maybe just with signals
-- [ ] figure a way to not lose signals as specfied here [Stack Overflow](https://stackoverflow.com/a/18442435/8962746)
-- [ ] GUI
-- [ ] CMake?
-- [ ] dockerize if time permits 
+- [ ] distinguish the 5th child from the rest (Seperate compilation using ifdef?) or maybe just with signals `Use another signal`
+- [x] figure a way to not lose signals as specfied here [Stack Overflow](https://stackoverflow.com/a/18442435/8962746)
+- [ ] GUI 
+
+~~- [ ] CMake?~~ `no need` 
+- [ ] dockerize if time permits  `once done with the project`
