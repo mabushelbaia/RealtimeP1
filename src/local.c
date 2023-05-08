@@ -78,4 +78,3 @@ void write_range(char *filename, int min, int max)
 
 void read_range(char *, int *, int *);
 void write_random_float_number(int pid,int min,int max);
-

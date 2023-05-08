@@ -13,4 +13,4 @@ int fd2;
 // Function prototypes
 void start(int, siginfo_t *, void *);
 void confirmed(int, siginfo_t *, void *);
-void read_pipe(int, siginfo_t *, void *);
+void coprocessor(int sig, siginfo_t *info, void *context);

@@ -3,9 +3,9 @@
 pid_t children[NUM_CHILDREN];
 bool confirmed[NUM_CHILDREN - 1] = {false};
 float numbers[NUM_CHILDREN - 1] = {0.0};
+int fd1[2];
+int fd2[2];
 int main(int argc, char *argv[]) {
-	int fd1[2];
-	int fd2[2];
 	create_pipe(fd1);
 	create_pipe(fd2);
 	handler_setup(SIGUSR1, &child_confirmations);
@@ -20,10 +20,11 @@ int main(int argc, char *argv[]) {
 	while(ready_counter < NUM_CHILDREN - 1) pause();
 	char buffer[100];
 	get_numbers(buffer);
-	printf("Parent: numbers read: %s\n", buffer);
 	send_message(fd1[1], buffer);
 	sleep(1);
 	kill(children[4], SIGUSR1);
+	handler_setup(SIGWINCH, &judge);
+	pause(); // Wait for coprocessor signal
 	while(wait(NULL) > 0); // Wait for all children to finish
 	return 0;
 }
@@ -107,4 +108,23 @@ int send_message(int fd, char *message) {
         return -1;
     }
     return 0;
+}
+
+void judge(int signo, siginfo_t *info, void *context) {
+	float sum1, sum2;
+	char buffer[100];
+	read(fd2[0], buffer, 100);
+    char* token = strtok(buffer, ",");
+    float SUM1 = atof(token);
+    token = strtok(NULL, ",");
+    float SUM2 = atof(token);
+	printf("SUM1: %f\n", SUM1);
+	printf("SUM2: %f\n", SUM2);
+	if (SUM1 > SUM2) {
+		printf("Winner: team 1\n");
+	} else if (SUM1 < SUM2) {
+		printf("Winner: team 2\n");
+	} else {
+		printf("Tie\n");
+	}
 }
