@@ -1,7 +1,8 @@
 CC = gcc
 CFLAGS = -lm -g -pg
+n ?= 5
 run: clean ./bin/parent.o ./bin/child.o # Remove clean if you want to keep the object files
-	./bin/parent.o
+	./bin/parent.o $(n)
 
 debug: 
 	$(CC) -o ./bin/parent.o ./src/parent.c ./src/local.c $(CFLAGS) 
