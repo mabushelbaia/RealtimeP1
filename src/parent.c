@@ -21,8 +21,7 @@ int main(int argc, char *argv[]) {
 	char buffer[100];
 	get_numbers(buffer);
 	printf("Parent: numbers read: %s\n", buffer);
-	char message[] = "Hello coprocessor";
-	send_message(fd1[1], message);
+	send_message(fd1[1], buffer);
 	sleep(1);
 	kill(children[4], SIGUSR1);
 	while(wait(NULL) > 0); // Wait for all children to finish
