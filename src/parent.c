@@ -1,10 +1,5 @@
 #include "parent.h"
 
-pid_t children[NUM_CHILDREN];
-bool confirmed[NUM_CHILDREN - 1] = {false};
-float numbers[NUM_CHILDREN - 1] = {0.0};
-int fd1[2];
-int fd2[2];
 
 int main(int argc, char *argv[]) {
 	create_pipe(fd1);
