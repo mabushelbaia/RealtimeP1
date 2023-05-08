@@ -10,17 +10,24 @@ int main(int argc, char *argv[]) {
 	close(fd2[1]);
 	sleep(1); // Wait for children to finish setting up their signal handlers
 	write_range("./txt/range.txt", 1, 100);
-	// Send SIGUSR1 to all children (Start signal)
-	for (int j=0; j < NUM_CHILDREN - 1; ++j) kill(children[j], SIGUSR1);
-	// Wait for all children to send SIGUSR1 (Confirm signal)
-	while(ready_counter < NUM_CHILDREN - 1) pause();
-	char buffer[100];
-	get_numbers(buffer);
-	send_message(fd1[1], buffer);
-	sleep(1);
-	kill(children[4], SIGUSR1);
-	handler_setup(SIGWINCH, &judge);
-	pause(); // Wait for coprocessor signal
+		// Send SIGUSR1 to all children (Start signal)
+	for (round=0; round < NUM_ROUNDS; ++round) {
+		for (int j=0; j < NUM_CHILDREN - 1; ++j) kill(children[j], SIGUSR1);
+		// Wait for all children to send SIGUSR1 (Confirm signal)
+		while(ready_counter < NUM_CHILDREN - 1) pause();
+		char buffer[100];
+		get_numbers(buffer);
+		send_message(fd1[1], buffer);
+		sleep(1);
+		kill(children[4], SIGUSR1);
+		handler_setup(SIGWINCH, &judge);
+		pause(); // Wait for coprocessor signal
+		memset(confirmed, false, sizeof(confirmed));
+		ready_counter = 0;
+		sleep(1);
+	}
+	printf("Final score: %d - %d\n", scores[0], scores[1]);
+	for (int i=0; i < NUM_CHILDREN; ++i) kill(children[i], SIGTERM); // Send SIGTERM to all children
 	while(wait(NULL) > 0); // Wait for all children to finish
 	return 0;
 }
@@ -79,7 +86,9 @@ void get_numbers(char* buffer) {
         char filename[20];
         sprintf(filename, "./txt/%d.txt", children[i]);
         numbers[i] = read_number(filename);
+		#ifdef CLI
         printf("Child %d: %f\n", children[i], numbers[i]);
+		#endif
         if (i == 0) {
             sprintf(buffer, "%f", numbers[i]);
         } else {
@@ -100,7 +109,9 @@ int create_pipe(int f_des[2]) {
 
 int send_message(int fd, char *message) {
     ssize_t bytes_written = write(fd, message, strlen(message));
+	#ifdef CLI
 	printf("Message sent: %s\n", message);
+	#endif
     if (bytes_written == -1) {
         perror("write");
         return -1;
@@ -116,13 +127,15 @@ void judge(int signo, siginfo_t *info, void *context) {
     float SUM1 = atof(token);
     token = strtok(NULL, ",");
     float SUM2 = atof(token);
-	printf("SUM1: %f\n", SUM1);
-	printf("SUM2: %f\n", SUM2);
+	printf("Team 1: %f\n", SUM1);
+	printf("Team 2: %f\n", SUM2);
 	if (SUM1 > SUM2) {
-		printf("Winner: team 1\n");
+		printf("Round [%d]: Team 1 wins!\n", (round +1));
+		scores[0] += 1;
 	} else if (SUM1 < SUM2) {
-		printf("Winner: team 2\n");
+		printf("Round [%d]: Team 2 wins!\n", (round +1));
+		scores[1] += 1;
 	} else {
-		printf("Tie\n");
+		printf("Round [%d]: Tie!\n", (round +1));
 	}
 }
