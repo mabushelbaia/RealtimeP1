@@ -2,16 +2,22 @@
 
 volatile sig_atomic_t confirmed_f = false;
 int main(int argc, char *argv[]) {
-	if (strcmp(argv[1], "4") == 0) {
-    	printf("[%d] Coprocessor child process started\n", getpid());
+    printf("[%d] Child %s process started\n", getpid(), argv[0]);
+	if (strcmp(argv[0], "4") == 0) {
+    	//printf("[%d] Coprocessor child process started\n", getpid());
+        fd1 = atoi(argv[1]);
+        fd2 = atoi(argv[2]);
+    	printf("[%d] Pipe1 file descriptor: %d\n", getpid(), fd1);
+    	printf("[%d] Pipe2 file descriptor: %d\n", getpid(), fd2);
+    	handler_setup(SIGUSR1, &read_pipe);
 	}
 	else {
-    	printf("[%d] Child process started\n", getpid());
+    	//printf("[%d] Child process started\n", getpid());
     	handler_setup(SIGUSR1, &start);
     	handler_setup(SIGUSR2, &confirmed);
-    	pause();
-    	return 0;
 	}
+    pause();
+    return 0;
 }
 void confirmed(int sig, siginfo_t *info, void *context) {
     confirmed_f = true;
@@ -27,4 +33,14 @@ void start(int sig, siginfo_t *info, void *context) {
         kill(getppid(), SIGUSR1);
     }
     confirmed_f = false;
+}
+
+void read_pipe(int sig, siginfo_t *info, void *context) {
+    char buffer[100];
+    read(fd1, buffer, 100);
+    printf("[%d] Received from pipe: %s\n", getpid(), buffer);
+    // while (!confirmed_f) {
+    //     kill(getppid(), SIGUSR1);
+    // }
+    // confirmed_f = false;
 }

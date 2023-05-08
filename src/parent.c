@@ -4,17 +4,27 @@ pid_t children[NUM_CHILDREN];
 bool confirmed[NUM_CHILDREN - 1] = {false};
 float numbers[NUM_CHILDREN - 1] = {0.0};
 int main(int argc, char *argv[]) {
-	int fd1[2], fd2[2];
+	int fd1[2];
+	int fd2[2];
 	create_pipe(fd1);
 	create_pipe(fd2);
 	handler_setup(SIGUSR1, &child_confirmations);
 	create_children(fd1, fd2);
+	close(fd1[0]);
+	close(fd2[1]);
 	sleep(1); // Wait for children to finish setting up their signal handlers
 	write_range("./txt/range.txt", 1, 100);
-	for (int j=0; j < NUM_CHILDREN - 1; ++j) kill(children[j], SIGUSR1); // Send SIGUSR1 to all children (Start signal)
-	kill(children[NUM_CHILDREN - 1], SIGPIPE); // Send SIGUSR2 (PIPE Child)
-	while(ready_counter < NUM_CHILDREN - 1) pause(); // Wait for all children to send SIGUSR1 (Confirm signal)
-	get_numbers();
+	// Send SIGUSR1 to all children (Start signal)
+	for (int j=0; j < NUM_CHILDREN - 1; ++j) kill(children[j], SIGUSR1);
+	// Wait for all children to send SIGUSR1 (Confirm signal)
+	while(ready_counter < NUM_CHILDREN - 1) pause();
+	char buffer[100];
+	get_numbers(buffer);
+	printf("Parent: numbers read: %s\n", buffer);
+	char message[] = "Hello coprocessor";
+	send_message(fd1[1], message);
+	sleep(1);
+	kill(children[4], SIGUSR1);
 	while(wait(NULL) > 0); // Wait for all children to finish
 	return 0;
 }
@@ -26,16 +36,17 @@ void create_children(int fd1[], int fd2[])
 		pid_t pid = fork();
 		if (pid == 0)
 		{
-			// Redirect read end of pipe to stdin
-        	if (dup2(fd1[0], STDIN_FILENO) == -1 || dup2(fd2[1], STDOUT_FILENO) == -1) {
-        	    perror("dup2");
-        	    exit(EXIT_FAILURE);
-        	}
-			close(fd1[1]);
-			close(fd2[0]);
+			if (i == 4) {
+				close(fd1[1]);
+				close(fd2[0]);
+			}
 			char arg[10];
+			int fd1_arg[20];
+			int fd2_arg[20];
 			sprintf(arg, "%d", i);
-			if (execlp("./bin/child.o", arg, NULL) == -1)
+			sprintf(fd1_arg, "%d", fd1[0]);
+			sprintf(fd2_arg, "%d", fd2[1]);
+			if (execlp("./bin/child.o", arg, fd1_arg, fd2_arg, NULL) == -1)
 			{
 				perror("exec");
 				exit(1);
@@ -44,8 +55,6 @@ void create_children(int fd1[], int fd2[])
 		else if (pid > 0)
 		{
 			children[i] = pid;
-			close(fd1[0]);
-			close(fd2[1]);
 		}
 		else
 		{
@@ -67,13 +76,18 @@ void child_confirmations(int signo, siginfo_t *info, void *context) {
 	}
 }
 
-void get_numbers() {
-	for (int i = 0; i < NUM_CHILDREN - 1; i++) {
-		char filename[20];
-		sprintf(filename, "./txt/%d.txt", children[i]);
-		numbers[i] = read_number(filename);
-		printf("Child %d: %f\n", children[i], numbers[i]);
-	}
+void get_numbers(char* buffer) {
+    for (int i = 0; i < NUM_CHILDREN - 1; i++) {
+        char filename[20];
+        sprintf(filename, "./txt/%d.txt", children[i]);
+        numbers[i] = read_number(filename);
+        printf("Child %d: %f\n", children[i], numbers[i]);
+        if (i == 0) {
+            sprintf(buffer, "%f", numbers[i]);
+        } else {
+            sprintf(buffer, "%s,%f", buffer, numbers[i]);
+        }
+    }
 }
 
 //create a pipe using an integer array f_des[]
@@ -84,4 +98,14 @@ int create_pipe(int f_des[2]) {
         exit(EXIT_FAILURE);
     }
     return ret;
+}
+
+int send_message(int fd, char *message) {
+    ssize_t bytes_written = write(fd, message, strlen(message));
+	printf("Message sent: %s\n", message);
+    if (bytes_written == -1) {
+        perror("write");
+        return -1;
+    }
+    return 0;
 }
