@@ -14,3 +14,4 @@ void write_range(char *filename, int min, int max);
 float read_number(char *filename);
 void read_range(char *filename, int *min, int *max);
 void write_random_float_number(int pid, int min, int max);
+void read_pipe(int);
