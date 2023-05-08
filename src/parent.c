@@ -48,8 +48,8 @@ void create_children(int fd1[], int fd2[])
 				close(fd2[0]);
 			}
 			char arg[10];
-			int fd1_arg[20];
-			int fd2_arg[20];
+			char fd1_arg[20];
+			char fd2_arg[20];
 			sprintf(arg, "%d", i);
 			sprintf(fd1_arg, "%d", fd1[0]);
 			sprintf(fd2_arg, "%d", fd2[1]);
