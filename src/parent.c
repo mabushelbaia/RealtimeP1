@@ -2,31 +2,35 @@
 
 
 int main(int argc, char *argv[]) {
+	if (argc == 2) NUM_ROUNDS = atoi(argv[1]);
 	create_pipe(fd1);
 	create_pipe(fd2);
 	handler_setup(SIGUSR1, &child_confirmations);
 	create_children(fd1, fd2);
 	close(fd1[0]);
 	close(fd2[1]);
-	sleep(1); // Wait for children to finish setting up their signal handlers
+	usleep(100000);// Wait for children to finish setting up their signal handlers
 	write_range("./txt/range.txt", 1, 100);
 		// Send SIGUSR1 to all children (Start signal)
-	for (round=0; round < NUM_ROUNDS; ++round) {
+	for (round_index=0; round_index < NUM_ROUNDS; ++round_index) {
 		for (int j=0; j < NUM_CHILDREN - 1; ++j) kill(children[j], SIGUSR1);
 		// Wait for all children to send SIGUSR1 (Confirm signal)
 		while(ready_counter < NUM_CHILDREN - 1) pause();
 		char buffer[100];
 		get_numbers(buffer);
 		send_message(fd1[1], buffer);
-		sleep(1);
+		usleep(100000); // 100ms
 		kill(children[4], SIGUSR1);
 		handler_setup(SIGWINCH, &judge);
 		pause(); // Wait for coprocessor signal
 		memset(confirmed, false, sizeof(confirmed));
 		ready_counter = 0;
-		sleep(1);
+		sleep(1); // 100ms
 	}
 	printf("Final score: %d - %d\n", scores[0], scores[1]);
+	if (scores[0] > scores[1]) printf("Team 1 win!\n");
+	else if (scores[0] < scores[1]) printf("Team 2 win!\n");
+	else printf("It's a tie!\n");
 	for (int i=0; i < NUM_CHILDREN; ++i) kill(children[i], SIGTERM); // Send SIGTERM to all children
 	while(wait(NULL) > 0); // Wait for all children to finish
 	return 0;
@@ -130,12 +134,12 @@ void judge(int signo, siginfo_t *info, void *context) {
 	printf("Team 1: %f\n", SUM1);
 	printf("Team 2: %f\n", SUM2);
 	if (SUM1 > SUM2) {
-		printf("Round [%d]: Team 1 wins!\n", (round +1));
+		printf("Round [%d]: Team 1 wins!\n", (round_index +1));
 		scores[0] += 1;
 	} else if (SUM1 < SUM2) {
-		printf("Round [%d]: Team 2 wins!\n", (round +1));
+		printf("Round [%d]: Team 2 wins!\n", (round_index +1));
 		scores[1] += 1;
 	} else {
-		printf("Round [%d]: Tie!\n", (round +1));
+		printf("Round [%d]: Tie!\n", (round_index +1));
 	}
 }
