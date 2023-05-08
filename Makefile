@@ -20,4 +20,5 @@ cli:
 clean:
 	mkdir -p ./bin ./txt
 	rm -f ./txt/*.txt
+	rm -f ./bin/*.o
 
