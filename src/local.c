@@ -47,21 +47,6 @@ void read_range(char *filename, int *min, int *max)
     fclose(fp);
 }
 
-void write_random_float_number(int pid, int min, int max) {
-    srand(time(NULL) + getpid());
-    float number = (float)rand() / (float)(RAND_MAX / max);
-    char filename[20];
-    sprintf(filename, "./txt/%d.txt", pid);
-    FILE *fp = fopen(filename, "w");
-    if (fp == NULL)
-    {
-        perror("fopen");
-        exit(1);
-    }
-    fprintf(fp, "%f", number);
-    fclose(fp);
-}
-
 
 void write_range(char *filename, int min, int max)
 {
@@ -76,6 +61,17 @@ void write_range(char *filename, int min, int max)
 	fclose(fp);
 }
 
-void read_range(char *, int *, int *);
-void write_random_float_number(int pid,int min,int max);
-
+void write_random_float_number(int pid, int min, int max) {
+    float number = (float)rand() / (float)(RAND_MAX / max);
+    //printf("[%d] Random number: %f\n", getpid(), number);
+    char filename[20];
+    sprintf(filename, "./txt/%d.txt", pid);
+    FILE *fp = fopen(filename, "w");
+    if (fp == NULL)
+    {
+        perror("fopen");
+        exit(1);
+    }
+    fprintf(fp, "%f", number);
+    fclose(fp);
+}
